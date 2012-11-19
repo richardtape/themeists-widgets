@@ -340,7 +340,7 @@ if( !class_exists( 'Themeists_Image_Widget' ) && !class_exists( 'themeists_image
 			if( !empty( $imageurl ) )
 			{
 
-				$title = apply_filters( 'widget_title', empty( $title ) ? '' : $title );
+				$title = apply_filters( 'image_widget_title', empty( $title ) ? '' : $title );
 				$description = apply_filters( 'widget_text', $description, $args, $instance );
 				$imageurl = apply_filters( 'image_widget_image_url', esc_url( $imageurl ), $args, $instance );
 				
@@ -377,7 +377,7 @@ if( !class_exists( 'Themeists_Image_Widget' ) && !class_exists( 'themeists_image
 		{
 
 			$instance = $old_instance;
-			$instance['title'] = strip_tags($new_instance['title']);
+			$instance['title'] = $new_instance['title'];
 			if( isset($new_instance['description']) )
 			{
 

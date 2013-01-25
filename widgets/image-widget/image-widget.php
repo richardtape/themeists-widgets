@@ -39,7 +39,10 @@ if( !class_exists( 'Themeists_Image_Widget' ) && !class_exists( 'themeists_image
 			$widget_ops = array( 'classname' => 'widget_sp_image', 'description' => __( 'Showcase a single image with a Title, URL, and a Description', 'image_widget' ) );
 			$control_ops = array( 'id_base' => 'widget_sp_image' );
 			$this->WP_Widget('widget_sp_image', __('Themeists Image Widget', 'image_widget'), $widget_ops, $control_ops);
-			add_action( 'admin_init', array( $this, 'admin_setup' ) );
+			add_action( 'admin_init', array( &$this, 'admin_setup' ) );
+
+			//we need to add a filter to plugins_url as we use symlinks in our dev setup
+			add_filter( 'plugins_url', array( &$this, 'local_dev_symlink_plugins_url_fix' ), 10, 3 );
 
 		}/* Themeists_Image_Widget() */
 
@@ -66,14 +69,14 @@ if( !class_exists( 'Themeists_Image_Widget' ) && !class_exists( 'themeists_image
 			{
 
 				wp_enqueue_style( 'thickbox' );
-				wp_enqueue_script( 'tribe-image-widget', plugins_url('resources/js/image-widget.js', __FILE__), array('thickbox'), FALSE, TRUE );
+				wp_enqueue_script( 'tribe-image-widget', plugins_url( 'widgets/image-widget/resources/js/image-widget.js', __FILE__ ), array('thickbox'), FALSE, TRUE );
 				add_action( 'admin_head-widgets.php', array( $this, 'admin_head' ) );
 
 			}
 			elseif( 'media-upload.php' == $pagenow || 'async-upload.php' == $pagenow )
 			{
 
-				wp_enqueue_script( 'tribe-image-widget-fix-uploader', plugins_url('resources/js/image-widget-upload-fixer.js', __FILE__), array('jquery'), FALSE, TRUE );
+				wp_enqueue_script( 'tribe-image-widget-fix-uploader', plugins_url( 'widgets/image-widget/resources/js/image-widget-upload-fixer.js', __FILE__ ), array( 'jquery' ), FALSE, TRUE );
 				add_filter( 'image_send_to_editor', array( $this,'image_send_to_editor'), 1, 8 );
 				add_filter( 'gettext', array( $this, 'replace_text_in_thickbox' ), 1, 3 );
 				add_filter( 'media_upload_tabs', array( $this, 'media_upload_tabs' ) );
@@ -512,6 +515,10 @@ if( !class_exists( 'Themeists_Image_Widget' ) && !class_exists( 'themeists_image
 			{
 				$file = $theme_file;
 			}
+			elseif( $theme_file = locate_template( array( 'templates/image-widget/' . $template ) ) )
+			{
+				$file = $theme_file;
+			}
 			else
 			{
 				$file = 'views/' . $template;
@@ -520,6 +527,29 @@ if( !class_exists( 'Themeists_Image_Widget' ) && !class_exists( 'themeists_image
 			return apply_filters( 'sp_template_image-widget_'.$template, $file );
 
 		}/* getTemplateHierarchy() */
+
+
+		/* =============================================================================== */
+
+
+		/**
+		 * Edit the plugins_url() url to be appropriate for this widget (we use symlinks on local dev)
+		 *
+		 * @author Richard Tape
+		 * @package Chemistry
+		 * @since 0.7
+		 */
+		
+		function local_dev_symlink_plugins_url_fix( $url, $path, $plugin )
+		{
+
+			// Do it only for this plugin
+			if ( strstr( $plugin, basename( __FILE__ ) ) )
+				return str_replace( dirname( __FILE__ ), '/' . basename( dirname( dirname( dirname( $plugin ) ) ) ), $url );
+
+			return $url;
+
+		}/* local_dev_symlink_plugins_url_fix() */
 
 	}/* class Themeists_Image_Widget */
 

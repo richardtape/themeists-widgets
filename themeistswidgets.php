@@ -59,7 +59,10 @@ License: GPL2
 					$this->using_themeists_theme = true;
 
 				if( $this->using_themeists_theme )
-					add_action( 'after_setup_theme', 			array( &$this, 'add_new_image_size' ) );
+					add_action( 'after_setup_theme', array( &$this, 'add_new_image_size' ) );
+
+				//we need to add a filter to plugins_url as we use symlinks in our dev setup
+				add_filter( 'plugins_url', array( &$this, 'local_dev_symlink_plugins_url_fix' ), 10, 3 );
 
 			}/* ThemeistsWidgets() */
 
@@ -94,7 +97,9 @@ License: GPL2
 						//We're using a theme which has registered support for custom widgets
 						foreach( $custom_widgets[0] as $widget_filename )
 						{
+
 							require_once( 'widgets/' . $widget_filename . '/' . $widget_filename . '.php' );
+
 						}
 
 					}
@@ -108,7 +113,7 @@ License: GPL2
 							while( false !== ( $widget_filename = readdir( $handle ) ) )
 							{
 							
-								if( $widget_filename != "." && $widget_filename != ".." )
+								if( $widget_filename != "." && $widget_filename != ".." && $widget_filename != ".DS_Store" )
 								{
 									require_once( 'widgets/' . $widget_filename . '/' . $widget_filename . '.php' );
 								}
@@ -130,7 +135,7 @@ License: GPL2
 			 * Add a new image size
 			 *
 			 * @author Richard Tape
-			 * @package 
+			 * @package ThemeistsWidgets
 			 * @since 1.0
 			 */
 
@@ -140,6 +145,27 @@ License: GPL2
 				add_image_size( 'lbp_thumb', 400, 233, true );
 
 			}/* add_new_image_size() */
+
+
+
+		/**
+		 * Edit the plugins_url() url to be appropriate for this widget (we use symlinks on local dev)
+		 *
+		 * @author Richard Tape
+		 * @package ThemeistsWidgets
+		 * @since 1.0
+		 */
+		
+		function local_dev_symlink_plugins_url_fix( $url, $path, $plugin )
+		{
+
+			// Do it only for this plugin
+			if ( strstr( $plugin, basename( __FILE__ ) ) )
+				return str_replace( dirname( __FILE__ ), '/' . basename( dirname( $plugin ) ), $url );
+
+			return $url;
+
+		}/* local_dev_symlink_plugins_url_fix() */
 			
 
 

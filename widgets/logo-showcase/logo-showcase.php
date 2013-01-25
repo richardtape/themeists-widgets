@@ -1,9 +1,9 @@
 <?php
 
-	if( !class_exists( 'themeists_call_to_action_row' ) )
+	if( !class_exists( 'ThemeistsLogoShowcase' ) )
 	{
 
-		class themeists_call_to_action_row extends WP_Widget
+		class ThemeistsLogoShowcase extends WP_Widget
 		{
 		
 			
@@ -11,17 +11,17 @@
 			 * The name shown in the widgets panel
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 */
 			
-			const name 		= 'Themeists Call To Action Row';
+			const name 		= 'Themeists Logo Showcase';
 
 			/**
 			 * For helping with translations
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 */
 
@@ -31,11 +31,11 @@
 			 * The slug for this widget, which is shown on output
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 */
 			
-			const slug 		= 'themeists_call_to_action_row';
+			const slug 		= 'ThemeistsLogoShowcase';
 		
 
 			/* ============================================================================ */
@@ -46,13 +46,13 @@
 			 * styles. 
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 * @param None
 			 * @return None
 			 */
 			
-			function themeists_call_to_action_row()
+			function ThemeistsLogoShowcase()
 			{
 		
 				//load_plugin_textdomain( self::locale, false, plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . '/lang/' );
@@ -60,8 +60,8 @@
 		
 				$widget_opts = array (
 
-					'classname' => 'themeists_call_to_action_row', 
-					'description' => __( 'A title and optional subtitle and a call to action button', self::locale )
+					'classname' => 'ThemeistsLogoShowcase', 
+					'description' => __( 'A simple widget to showcase your client\'s logos', self::locale )
 
 				);
 
@@ -77,7 +77,7 @@
 		    	// Load JavaScript and stylesheets
 		    	$this->register_scripts_and_styles();
 		
-			}/* themeists_call_to_action_row() */
+			}/* ThemeistsLogoShowcase() */
 		
 
 			/* ============================================================================ */
@@ -87,7 +87,7 @@
 			 * Outputs the content of the widget.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 * @param (array) $args - The array of form elements
 			 * @param (array) $instance - The saved options from the widget controls
@@ -104,32 +104,51 @@
 		
 					//Get vars
 		    		$title					=	$instance['title'];
-		    		$subtitle				=	$instance['subtitle'];
-		    		$button_text			=	$instance['button_text'];
-		    		$button_link			=	$instance['button_link'];
+		    		$num_to_show			=	$instance['num_to_show'];
 
-		    		?>
+		    		echo $before_title . $title . $after_title;
 
-		    		<div class="row">
+		    		$cols = incipio_convert_number_to_words( 12/$num_to_show );
+
 		    		
-		    			<div class="nine columns cta_title_sub_title">
-		    			
-		    				<h3><?php echo $title; ?></h3>
-		    				<h5><?php echo $subtitle; ?></h5>
-		    			
-		    			</div><!-- .cols -->
 
-		    			<div class="three columns cta_button">
-		    			
-		    				<a href="<?php echo $button_link; ?>" class="button" title="<?php echo $button_text; ?>">
-		    					<?php echo $button_text; ?>
-		    				</a>
-		    			
-		    			</div><!-- .cols -->
-		    		
-		    		</div><!-- .row -->
+			    		//We need to get x-number (where x = $num_to_show) of 'project' post type that
+			    		//contain logos. Logos are stored as a custom field with a key of _logo
+			    		$query_args = array(
+			    			'post_type' => 'project',
+			    			'meta_key' => '_logo',
+			    			'posts_per_page' => $num_to_show
+			    		);
 
-		    		<?php
+			    		$latest_logos = new WP_Query( $query_args );
+
+			    		if( $latest_logos->have_posts() ) :
+
+				    		echo '<div class="logo_showcase row show_'. $num_to_show . '">';
+
+				    		while ( $latest_logos->have_posts() ) : $latest_logos->the_post();
+
+				    		$image_id = get_post_meta( get_the_ID(), '_logo', true );
+				    		$image_attr = wp_get_attachment_image_src( $image_id, 'logo_6up_146_40' );
+				    		$image_url = $image_attr[0];
+
+				    		
+
+				    		?>
+
+				    		<div class="<?php echo $cols; ?> columns">
+				    		
+				    			<a href="<?php the_permalink(); ?>" title=""><img src="<?php echo $image_url; ?>" alt="" /></a>
+				    		
+				    		</div><!-- .cols -->
+
+				    		<?php
+
+			    			endwhile; wp_reset_postdata();
+
+			    		endif;
+
+		    		echo '</div>';
 
 				echo $after_widget;
 		
@@ -143,7 +162,7 @@
 			 * Processes the widget's options to be saved.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 * @param $new_instance	The previous instance of values before the update.
 			 * @param @old_instance	The new instance of values to be generated via the update. 
@@ -156,9 +175,7 @@
 				$instance = $old_instance;
 		
 		    	$instance['title'] 			= 	$new_instance['title'];
-		    	$instance['subtitle'] 		= 	$new_instance['subtitle'];
-		    	$instance['button_text']	= 	$new_instance['button_text'];
-		    	$instance['button_link'] 	= 	$new_instance['button_link'];
+		    	$instance['num_to_show'] 	= 	$new_instance['num_to_show'];
 		    
 				return $instance;
 		
@@ -172,7 +189,7 @@
 			 * Generates the administration form for the widget.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 * @param $instance	The array of keys and values for the widget.
 			 * @return None
@@ -186,10 +203,8 @@
 
 					(array)$instance,
 					array(
-						'title' => 'This is the title for this widget',
-						'subtitle' => 'And this is the (optional) subtitle. We think it looks pretty neat!',
-						'button_text' => 'Learn More About It',
-						'button_link' => 'http://www.google.com/'
+						'title' => 'Clients',
+						'num_to_show' => '6',
 					)
 
 				);
@@ -204,24 +219,10 @@
 					</p>
 
 					<p>
-						<label for="<?php echo $this->get_field_id( 'subtitle' ); ?>">
-							<?php _e( "Subtitle", THEMENAME ); ?>
+						<label for="<?php echo $this->get_field_id( 'num_to_show' ); ?>">
+							<?php _e( "Number of Logos to show", THEMENAME ); ?>
 						</label>
-						<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'subtitle' ); ?>" name="<?php echo $this->get_field_name( 'subtitle' ); ?>" value="<?php echo $instance['subtitle']; ?>" />
-					</p>
-
-					<p>
-						<label for="<?php echo $this->get_field_id( 'button_text' ); ?>">
-							<?php _e( "Button Text", THEMENAME ); ?>
-						</label>
-						<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'button_text' ); ?>" name="<?php echo $this->get_field_name( 'button_text' ); ?>" value="<?php echo $instance['button_text']; ?>" />
-					</p>
-
-					<p>
-						<label for="<?php echo $this->get_field_id( 'button_link' ); ?>">
-							<?php _e( "Button Link", THEMENAME ); ?>
-						</label>
-						<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'button_link' ); ?>" name="<?php echo $this->get_field_name( 'button_link' ); ?>" value="<?php echo $instance['button_link']; ?>" />
+						<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'num_to_show' ); ?>" name="<?php echo $this->get_field_name( 'num_to_show' ); ?>" value="<?php echo $instance['num_to_show']; ?>" />
 					</p>
 		    	
 		    	<?php
@@ -237,7 +238,7 @@
 			 * public facing site.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 * @param None
 			 * @return None
@@ -270,7 +271,7 @@
 			 * Helper function for registering and enqueueing scripts and styles.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsLogoShowcase
 			 * @since 1.0
 			 * @param $name 		The ID to register with WordPress
 			 * @param $file_path	The path to the actual file
@@ -302,12 +303,12 @@
 			}/* load_file() */
 		
 		
-		}/* class themeists_call_to_action_row */
+		}/* class ThemeistsLogoShowcase */
 
 	}
 
 	//Register The widget
-	//register_widget( "themeists_call_to_action_row" );
-	add_action( 'widgets_init', create_function( '', 'register_widget( "themeists_call_to_action_row" );' ) );
+	//register_widget( "ThemeistsLogoShowcase" );
+	add_action( 'widgets_init', create_function( '', 'register_widget( "ThemeistsLogoShowcase" );' ) );
 
 ?>

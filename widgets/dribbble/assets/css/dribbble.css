@@ -1,0 +1,98 @@
+.dribbbles
+{
+	list-style-type: none;
+	margin: 0px 0px 1.5em;
+}
+
+.dribbbles li
+{
+	font-size: 15px;
+	position: relative;
+	padding: 0;
+	margin: 0;
+}
+
+.dribbbles li a
+{
+	border: none;
+}
+
+.dribbbles .dribbble
+{
+	font-family: "Helvetica Nueue", Helvetica, Arial, sans-serif;
+	position: relative;
+	clear: left;
+	overflow: hidden;
+}
+
+.dribbbles .dribbble-shot
+{
+
+}
+
+.dribbbles .dribbble-over
+{
+	position: absolute;
+	top: 20px;
+	bottom: 0;
+	left: 20px;
+	right: 0;
+	z-index: 1;
+	margin: 0!important;
+	padding: 0;
+	font-size: 0.8em;
+	line-height: 2em;
+	text-decoration: none;
+	color: #888;
+}
+
+.dribbbles .dribbble-link
+{
+	position: relative;
+	z-index: 2;
+}
+
+.dribbbles img
+{
+	margin: 0;
+	opacity: 1;
+	-webkit-transition: opacity 0.2s linear;
+	-o-transition: opacity 0.2s linear;
+	-moz-transition: opacity 0.2s linear;
+	width: 100%;
+	max-width: none;
+}
+
+.dribbbles a:hover img
+{
+	opacity: 0.1;
+	-webkit-transition: opacity 0.2s linear;
+	-o-transition: opacity 0.2s linear;
+	-moz-transition: opacity 0.2s linear;
+}
+
+.dribbbles strong
+{
+	display: block;
+	font-weight: bold;
+	font-size: 1.4em;
+	line-height: 1.2em;
+	color: #ea4c88;
+}
+
+.dribbbles .dim
+{
+	font-weight: bold;
+	color: #666;
+}
+
+.dribbbles em
+{
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	font-size: 1em;
+	line-height: 1em;
+	font-weight: normal;
+	font-style: normal;
+}

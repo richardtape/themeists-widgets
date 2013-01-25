@@ -1,9 +1,9 @@
 <?php
 
-	if( !class_exists( 'themeists_call_to_action_row' ) )
+	if( !class_exists( 'ThemeistsFeatureHighlight' ) )
 	{
 
-		class themeists_call_to_action_row extends WP_Widget
+		class ThemeistsFeatureHighlight extends WP_Widget
 		{
 		
 			
@@ -11,17 +11,17 @@
 			 * The name shown in the widgets panel
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 */
 			
-			const name 		= 'Themeists Call To Action Row';
+			const name 		= 'Themeists Feature Highlight';
 
 			/**
 			 * For helping with translations
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 */
 
@@ -31,11 +31,11 @@
 			 * The slug for this widget, which is shown on output
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 */
 			
-			const slug 		= 'themeists_call_to_action_row';
+			const slug 		= 'ThemeistsFeatureHighlight';
 		
 
 			/* ============================================================================ */
@@ -46,13 +46,13 @@
 			 * styles. 
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 * @param None
 			 * @return None
 			 */
 			
-			function themeists_call_to_action_row()
+			function ThemeistsFeatureHighlight()
 			{
 		
 				//load_plugin_textdomain( self::locale, false, plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . '/lang/' );
@@ -60,8 +60,8 @@
 		
 				$widget_opts = array (
 
-					'classname' => 'themeists_call_to_action_row', 
-					'description' => __( 'A title and optional subtitle and a call to action button', self::locale )
+					'classname' => 'ThemeistsFeatureHighlight', 
+					'description' => __( 'A title, some text and an image or icon to highlight anything you like', self::locale )
 
 				);
 
@@ -77,7 +77,7 @@
 		    	// Load JavaScript and stylesheets
 		    	$this->register_scripts_and_styles();
 		
-			}/* themeists_call_to_action_row() */
+			}/* ThemeistsFeatureHighlight() */
 		
 
 			/* ============================================================================ */
@@ -87,7 +87,7 @@
 			 * Outputs the content of the widget.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 * @param (array) $args - The array of form elements
 			 * @param (array) $instance - The saved options from the widget controls
@@ -105,29 +105,24 @@
 					//Get vars
 		    		$title					=	$instance['title'];
 		    		$subtitle				=	$instance['subtitle'];
-		    		$button_text			=	$instance['button_text'];
+		    		$icon_reference				=	$instance['icon_reference'];
 		    		$button_link			=	$instance['button_link'];
 
 		    		?>
 
-		    		<div class="row">
-		    		
-		    			<div class="nine columns cta_title_sub_title">
-		    			
-		    				<h3><?php echo $title; ?></h3>
-		    				<h5><?php echo $subtitle; ?></h5>
-		    			
-		    			</div><!-- .cols -->
+		    		<div class="feature_container">
 
-		    			<div class="three columns cta_button">
-		    			
-		    				<a href="<?php echo $button_link; ?>" class="button" title="<?php echo $button_text; ?>">
-		    					<?php echo $button_text; ?>
-		    				</a>
-		    			
-		    			</div><!-- .cols -->
-		    		
-		    		</div><!-- .row -->
+		    			<h4><?php echo $title; ?></h4>
+
+		    			<p><?php echo $subtitle; ?></p>
+
+		    			<?php if( !empty( $icon_reference ) ) : ?>
+		    				<span class="pictogram"><?php echo $icon_reference; ?></span>
+		    			<?php endif; ?>
+
+		    			<a href="<?php echo $button_link ?>" title=""><?php _e( 'More', THEMENAME ); ?></a>
+
+		    		</div>
 
 		    		<?php
 
@@ -143,7 +138,7 @@
 			 * Processes the widget's options to be saved.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 * @param $new_instance	The previous instance of values before the update.
 			 * @param @old_instance	The new instance of values to be generated via the update. 
@@ -157,7 +152,7 @@
 		
 		    	$instance['title'] 			= 	$new_instance['title'];
 		    	$instance['subtitle'] 		= 	$new_instance['subtitle'];
-		    	$instance['button_text']	= 	$new_instance['button_text'];
+		    	$instance['icon_reference']		= 	$new_instance['icon_reference'];
 		    	$instance['button_link'] 	= 	$new_instance['button_link'];
 		    
 				return $instance;
@@ -172,7 +167,7 @@
 			 * Generates the administration form for the widget.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 * @param $instance	The array of keys and values for the widget.
 			 * @return None
@@ -186,10 +181,10 @@
 
 					(array)$instance,
 					array(
-						'title' => 'This is the title for this widget',
-						'subtitle' => 'And this is the (optional) subtitle. We think it looks pretty neat!',
-						'button_text' => 'Learn More About It',
-						'button_link' => 'http://www.google.com/'
+						'title' => 'This is the title of this feature',
+						'subtitle' => 'And this is the nice piece of text underneath that title. It explains your feature.',
+						'icon_reference' => '',
+						'button_link' => '#'
 					)
 
 				);
@@ -211,10 +206,10 @@
 					</p>
 
 					<p>
-						<label for="<?php echo $this->get_field_id( 'button_text' ); ?>">
-							<?php _e( "Button Text", THEMENAME ); ?>
+						<label for="<?php echo $this->get_field_id( 'icon_reference' ); ?>">
+							<?php _e( "Icon Code ( see http://entypo.com/characters.php )", THEMENAME ); ?>
 						</label>
-						<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'button_text' ); ?>" name="<?php echo $this->get_field_name( 'button_text' ); ?>" value="<?php echo $instance['button_text']; ?>" />
+						<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'icon_reference' ); ?>" name="<?php echo $this->get_field_name( 'icon_reference' ); ?>" value="<?php echo $instance['icon_reference']; ?>" />
 					</p>
 
 					<p>
@@ -237,7 +232,7 @@
 			 * public facing site.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 * @param None
 			 * @return None
@@ -270,7 +265,7 @@
 			 * Helper function for registering and enqueueing scripts and styles.
 			 *
 			 * @author Richard Tape
-			 * @package themeists_call_to_action_row
+			 * @package ThemeistsFeatureHighlight
 			 * @since 1.0
 			 * @param $name 		The ID to register with WordPress
 			 * @param $file_path	The path to the actual file
@@ -302,12 +297,12 @@
 			}/* load_file() */
 		
 		
-		}/* class themeists_call_to_action_row */
+		}/* class ThemeistsFeatureHighlight */
 
 	}
 
 	//Register The widget
-	//register_widget( "themeists_call_to_action_row" );
-	add_action( 'widgets_init', create_function( '', 'register_widget( "themeists_call_to_action_row" );' ) );
+	//register_widget( "ThemeistsFeatureHighlight" );
+	add_action( 'widgets_init', create_function( '', 'register_widget( "ThemeistsFeatureHighlight" );' ) );
 
 ?>

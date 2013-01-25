@@ -73,6 +73,9 @@
 
 				//Register the widget
 				$this->WP_Widget( self::slug, __( self::name, self::locale ), $widget_opts, $control_options );
+
+				//we need to add a filter to plugins_url as we use symlinks in our dev setup
+				add_filter( 'plugins_url', array( &$this, 'local_dev_symlink_plugins_url_fix' ), 10, 3 );
 		
 		    	// Load JavaScript and stylesheets
 		    	$this->register_scripts_and_styles();
@@ -169,6 +172,7 @@
 
 								'posts_per_page' => $num_to_show,
 								'post_status' => 'publish',
+								'ignore_sticky_posts' => 1
 
 							);
 
@@ -192,7 +196,6 @@
 								
 							=================================================================== */
 
-
 							if( $lbp->have_posts() ) : 
 
 								if( locate_template( '/templates/latest_blog_posts_widget.php' ) != '' )
@@ -209,7 +212,83 @@
 
 									while( $lbp->have_posts() ) : $lbp->the_post();
 
-										
+									?>
+
+										<li class="lbp_widget_post_<?php echo get_the_ID(); ?> columns <?php echo incipio_convert_number_to_words( 12/$num_to_show ); ?>">
+
+											<?php if( $show_thumbnail == 1 ) : ?>
+
+												<div class="hover_block">
+
+													<a href="<?php the_permalink(); ?>" title="<?php the_title(); ?>" class="lbp_thumb">
+													
+														<div class="box">
+
+															<?php the_post_thumbnail( apply_filters( 'themeists_widget_lbp_thumbnail_size', 'lbp_thumb' ) ); ?>
+														
+															<div class="onhover">
+																<p>
+																	<span>
+																		<?php echo apply_filters( 'themeists_lbp_read_more_text', 'Read More' ); ?>
+																	</span>
+																</p>
+															</div><!-- .details -->
+														
+														</div>
+
+													</a>
+
+												</div><!-- .mosaic-block -->
+
+											<?php endif; ?>
+
+											
+											<h4 class="<?php echo apply_filters( 'themeists_widget_lbp_post_title_classes', 'widget_post_title' ); ?>">
+												<a href="<?php the_permalink(); ?>" title="<?php the_title(); ?>"><?php the_title(); ?></a>
+											</h4>
+
+											<div class="<?php echo apply_filters( 'themeists_widget_lbp_post_excerpt_classes', 'widget_post_excerpt' ); ?>">
+												<?php the_excerpt(); ?>
+											</div><!-- .widget_post_excerpt -->
+
+
+											<?php if( ( $show_comments == 1 ) || ( $show_date == 1 ) || ( $show_author == 1 ) || ( $show_likes == 1 )  ) : ?>
+
+												<ul class="<?php echo apply_filters( 'themeists_widget_lbp_post_meta_classes', 'widget_post_meta' ); ?>">
+
+													<?php if( $show_comments == 1 ) : ?>
+													<li class="lbp_comments li_with_icon">
+														<a href="<?php the_permalink(); ?>#comments" title="<?php the_title(); ?>">
+															<?php comments_number( __( '0 comments', THEMENAME ), __( '1 comment', THEMENAME ), __( '% comments', THEMENAME ) ); ?>
+														</a>
+													</li>
+													<?php endif; ?>
+
+													<?php if( $show_date == 1 ) : ?>
+													<li class="lbp_date">
+														<?php the_time( 'M j, Y' ); ?>
+													</li>
+													<?php endif; ?>
+
+													<?php if( $show_author == 1 ) : ?>
+													<li class="lbp_author li_with_icon">
+														<?php the_author_posts_link(); ?>
+													</li>
+													<?php endif; ?>
+
+													<?php if( $show_likes == 1 ) : ?>
+													<li class="lbp_likes">
+														<?php ThemeistsLikeThis::printLikes( get_the_ID() ); ?>
+													</li>
+													<?php endif; ?>
+
+												</ul><!-- .widget_post_meta -->
+
+											<?php endif; ?>
+
+										</li>
+
+										<?php
 
 									endwhile; wp_reset_postdata();
 
@@ -302,7 +381,8 @@
 						'show_comments' 	=> '',
 						'show_date' 		=> '',
 						'show_author' 		=> '',
-						'show_likes' 		=> ''
+						'show_likes' 		=> '',
+						'term_to_show'		=> ''
 					)
 
 				);
@@ -504,13 +584,16 @@
 				if( is_admin() )
 				{
 
-		      		//$this->load_file('friendly_widgets_admin_js', '/themes/'.THEMENAME.'/admin/js/widgets.js', true);
+					
 
 				}
 				else
 				{ 
 
-		      		//$this->load_file('friendly_widgets', '/themes/'.THEMENAME.'/theme_assets/js/widgets.js', true);
+		      		//wp_enqueue_script( 'jquery' );
+		      		//wp_enqueue_script( 'jquery-moasaic-js', plugins_url( 'assets/js/jquery.mosaic.min.js' , __FILE__ ), array( 'jquery' ), false, true );
+
+		      		//wp_enqueue_style( 'jquery-mosaic-css', plugins_url( 'assets/css/mosaic.css' , __FILE__ ) );
 
 				}
 
@@ -554,6 +637,28 @@
 				}
 			
 			}/* load_file() */
+
+
+			/* ============================================================================ */
+
+			/**
+			 * Edit the plugins_url() url to be appropriate for this widget (we use symlinks on local dev)
+			 *
+			 * @author Richard Tape
+			 * @package themeists_iview_slider_widget
+			 * @since 1.0
+			 */
+			
+			function local_dev_symlink_plugins_url_fix( $url, $path, $plugin )
+			{
+
+				// Do it only for this plugin
+				if ( strstr( $plugin, basename( __FILE__ ) ) )
+					return str_replace( dirname( __FILE__ ), '/' . basename( dirname( dirname( dirname( $plugin ) ) ) ) . '/widgets/latest-blog-posts', $url );
+
+				return $url;
+
+			}/* local_dev_symlink_plugins_url_fix() */
 		
 		
 		}/* class themeists_latest_blog_posts */

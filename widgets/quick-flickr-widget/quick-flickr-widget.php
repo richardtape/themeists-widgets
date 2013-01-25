@@ -18,7 +18,7 @@ if( !class_exists( 'Quick_Flickr_Widget' ) ) :
 		public function __construct()
 		{
 
-			parent::__construct( 'quick-flickr-widget', 'Themeists Flickr Widget', array(
+			parent::__construct( 'themeists-flickr-widget', 'Themeists Flickr Widget', array(
 				'description' => 'Display up to 20 of your latest Flickr submissions in your sidebar.',
 			) );
 
@@ -51,19 +51,26 @@ if( !class_exists( 'Quick_Flickr_Widget' ) ) :
 				'tags' => $instance['tags'],
 			) );
 
-			if ( is_wp_error( $photos ) ) {
-				echo $photos->get_error_message();
-			} else {
-				foreach ( $photos as $photo ) {
-					$link = esc_url( $photo->link );
-					$src = esc_url( $photo->media->m );
-					$title = esc_attr( $photo->title );
+			echo '<div class="themeists-flickr-widget-inner-container">';
 
-					$item = sprintf( '<a href="%s"><img src="%s" alt="%s" /></a>', $link, $src, $title );
-					$item = sprintf( '<div class="quick-flickr-item">%s</div>', $item );
-					echo $item;
+				if ( is_wp_error( $photos ) )
+				{
+					echo $photos->get_error_message();
 				}
-			}
+				else
+				{
+					foreach ( $photos as $photo ) {
+						$link = esc_url( $photo->link );
+						$src = esc_url( $photo->media->m );
+						$title = esc_attr( $photo->title );
+
+						$item = sprintf( '<a href="%s"><img src="%s" alt="%s" /></a>', $link, $src, $title );
+						$item = sprintf( '<div class="themeists-flickr-item"><div class="square">%s</div></div>', $item );
+						echo $item;
+					}
+				}
+
+			echo '</div>';
 
 			echo $args['after_widget'];
 
